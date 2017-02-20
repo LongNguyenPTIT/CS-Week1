@@ -229,7 +229,6 @@
         <!--Playing Now-->
         <scene sceneID="ytw-OK-TfP">
             <objects>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="mYV-81-QUN" userLabel="First Responder" sceneMemberID="firstResponder"/>
                 <navigationController automaticallyAdjustsScrollViewInsets="NO" id="C7b-Bc-de8" sceneMemberID="viewController">
                     <tabBarItem key="tabBarItem" title="Playing Now" image="playing-gray" selectedImage="playing-gray" id="6VM-sD-I1I"/>
                     <toolbarItems/>
@@ -242,6 +241,7 @@
                         <segue destination="BYZ-38-t0r" kind="relationship" relationship="rootViewController" id="JAK-CN-Gsy"/>
                     </connections>
                 </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="mYV-81-QUN" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="4372.5" y="1356.338028169014"/>
         </scene>

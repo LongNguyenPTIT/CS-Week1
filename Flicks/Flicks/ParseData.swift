@@ -11,16 +11,16 @@ import Foundation
 struct ParseData {
     
     let headers = ["content-type": "application/json"]
-    let session = URLSession.shared
+    let session = URLSession(configuration: .default, delegate: nil, delegateQueue: OperationQueue.main)
     
     
     
+
     
-    
-    func getDataFirst(completion: @escaping ([MovieModel]) -> () ) {
+    func getDataFirst(typeMovie: String, completion:@escaping ([MovieModel]) -> () ) {
         
         
-        let url = URL(string:"\(MovieAPI.share.MOVIES_NOW_PLAYING)\(MovieAPI.share.APIKey)")!
+        let url = URL(string:"\(typeMovie)\(MovieAPI.share.APIKey)")!
 
         var request = URLRequest(
             url: url,
@@ -71,7 +71,7 @@ struct ParseData {
             with: request,
             completionHandler: { (data, respones, error) in
                 if (error != nil) {
-                    print(error)
+                    print("ERROR:\(error)")
                 } else {
                     if let responseDictionary = try! JSONSerialization.jsonObject(with: data!, options: []) as? NSDictionary {
                         

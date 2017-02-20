@@ -9,14 +9,16 @@
 import UIKit
 import AFNetworking
 
-class MovieViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
+class MovieViewController: UIViewController, UITabBarControllerDelegate,  UITableViewDataSource, UITableViewDelegate {
 
+    var endPoint: Int = 0
     var dataResponds = ParseData()
     var listMovie = [MovieModel]()
     var listGenre = [GenreModel]()
     var nextPage:Int = 1
     var loadingView: UIView = UIView()
     var spinner = UIActivityIndicatorView(activityIndicatorStyle: .whiteLarge)
+    var typeMovie = MovieAPI.share.MOVIES_NOW_PLAYING
     
 //    let network = AFNetworkReachabilityManager.init(forDomain: "www.apple.com")
     
@@ -33,21 +35,22 @@ class MovieViewController: UIViewController, UITableViewDataSource, UITableViewD
         super.viewDidLoad()
         movieTableView.delegate = self
         movieTableView.dataSource = self
+        self.tabBarController?.delegate = self
         
-        DispatchQueue.global().async {
-            self.dataResponds.getDataFirst { (result) in
+        let refreshControl = UIRefreshControl()
+        refreshControl.addTarget(self, action: #selector(refreshControlAction(_:)), for: .valueChanged)
+        movieTableView.insertSubview(refreshControl, at: 0)
+        
+
+            self.dataResponds.getDataFirst(typeMovie: self.typeMovie, completion: { (result) in
                 self.listMovie = result
                 self.nextPage += 1
                 self.movieTableView.reloadData()
-            }
-        }
+            })
+
         listenForReachability()
         
-        DispatchQueue.global().async {
-            self.dataResponds.getGenreListData { (result) in
-                self.listGenre = result
-            }
-        }
+
         
         
         
@@ -71,7 +74,7 @@ class MovieViewController: UIViewController, UITableViewDataSource, UITableViewD
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "cell") as? MovieCell
         if (indexPath.row + 1 < self.listMovie.count) {
-            cell?.configCell(dataCell: listMovie[indexPath.row])
+//            cell?.configCell(dataCell: listMovie[indexPath.row])
             cell?.backgroundColor = UIColor.clear
 //            return cell!
 //            
@@ -147,17 +150,28 @@ class MovieViewController: UIViewController, UITableViewDataSource, UITableViewD
                 self.hideActivityIndicator()
                 
                 
-                self.dataResponds.getDataFirst { (result) in
+                self.dataResponds.getDataFirst(typeMovie: self.typeMovie, completion: { (result) in
                     self.listMovie = result
                     self.nextPage += 1
                     self.movieTableView.reloadData()
-                }
+                })
                 break
                 //Hide error state
             }
         }
         AFNetworkReachabilityManager.shared().startMonitoring()
         
+    }
+    
+    func refreshControlAction (_ refreshControl: UIRefreshControl) {
+
+            self.dataResponds.getDataFirst(typeMovie: self.typeMovie, completion: { (result) in
+                self.listMovie = result
+                self.nextPage += 1
+                self.movieTableView.reloadData()
+                refreshControl.endRefreshing()
+            })
+
     }
 
     
@@ -190,16 +204,29 @@ class MovieViewController: UIViewController, UITableViewDataSource, UITableViewD
         // Get the new view controller using segue.destinationViewController.
         // Pass the selected object to the new view controller.
     }
-
+    func tabBarController(_ tabBarController: UITabBarController, didSelect viewController: UIViewController) {
+        showActivityIndicator()
+        let tabBarIndex = tabBarController.selectedIndex
+        if tabBarIndex == 0 {
+            typeMovie = MovieAPI.share.MOVIES_NOW_PLAYING
+        } else {
+            typeMovie = MovieAPI.share.MOVIES_TOP_RATE
+        }
+        
+        
+            self.dataResponds.getDataFirst(typeMovie: self.typeMovie, completion: { (result) in
+                self.listMovie = result
+                self.nextPage = 2
+                self.movieTableView.reloadData()
+                self.hideActivityIndicator()
+            })
+        
+    }
     
 
 }
 
-extension MovieViewController: UITabBarDelegate {
-    func tabBar(_ tabBar: UITabBar, didSelect item: UITabBarItem) {
-        print("Selected Index :\(item.index)");
-    }
-}
+
 
 
 
